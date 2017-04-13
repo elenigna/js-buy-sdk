@@ -24,6 +24,10 @@ import ImageHelpers from './image-helpers';
 
 export {default as Config} from './config';
 
+/**
+ * @module js-buy-sdk
+ */
+
 const shopPolicies = [
   ['privacyPolicy', shopPolicyQuery()],
   ['termsOfService', shopPolicyQuery()],
@@ -73,9 +77,10 @@ function fetchResourcesForProducts(products, client) {
 }
 
 /**
- * @class Client
+ * The JS Buy SDK Client.
+ * @alias module:js-buy-sdk
  */
-export default class Client {
+class Client {
   constructor(config, GraphQLClientClass = GraphQLJSClient) {
     const apiUrl = `https://${config.domain}/api/graphql`;
 
@@ -94,6 +99,10 @@ export default class Client {
     this.Image = {};
     this.Image.Helpers = new ImageHelpers();
 
+    /*
+     * Namespace containing the query callback functions.
+     * @namespace
+     */
     this.Queries = {
       productNodeQuery,
       productConnectionQuery,
@@ -118,6 +127,19 @@ export default class Client {
     };
   }
 
+  /**
+   * Fetches shop information (e.g. name, description).
+   *
+   * ```javascript
+   * client.fetchShopInfo().then((shop) => {
+   *   // Do something with the shop
+   * });
+   * ```
+   *
+   * @method fetchShopInfo
+   * @param {Function} [query] Callback function to specify fields to query on the shop.
+   * @return {Promise|GraphModel} A promise resolving with a `GraphModel` of the shop.
+   */
   fetchShopInfo(query = shopQuery()) {
     const rootQuery = this.graphQLClient.query((root) => {
       query(root, 'shop');
@@ -128,6 +150,19 @@ export default class Client {
     });
   }
 
+  /**
+   * Fetches shop policies.
+   *
+   * ```javascript
+   * client.fetchShopPolicies().then((shop) => {
+   *   // Do something with the shop
+   * });
+   * ```
+   *
+   * @method fetchShopPolicies
+   * @param {Function} [query] Callback function to specify fields to query on the shop.
+   * @return {Promise|GraphModel} A promise resolving with a `GraphModel` of the shop.
+   */
   fetchShopPolicies(query = shopQuery(shopPolicies)) {
     const rootQuery = this.graphQLClient.query((root) => {
       query(root, 'shop');
@@ -138,6 +173,19 @@ export default class Client {
     });
   }
 
+  /**
+   * Fetches all products on the shop.
+   *
+   * ```javascript
+   * client.fetchAllProducts().then((products) => {
+   *   // Do something with the products
+   * });
+   * ```
+   *
+   * @method fetchAllProducts
+   * @param {Function} [query] Callback function to specify fields to query on the products.
+   * @return {Promise|GraphModel[]} A promise resolving with an array of `GraphModel`s of the products.
+   */
   fetchAllProducts(query = productConnectionQuery()) {
     const rootQuery = this.graphQLClient.query((root) => {
       root.add('shop', (shop) => {
@@ -152,6 +200,20 @@ export default class Client {
     });
   }
 
+  /**
+   * Fetches a single product by ID on the shop.
+   *
+   * ```javascript
+   * client.fetchProduct('123456').then((product) => {
+   *   // Do something with the product
+   * });
+   * ```
+   *
+   * @method fetchProduct
+   * @param {String} id The id of the product to fetch.
+   * @param {Function} [query] Callback function to specify fields to query on the product.
+   * @return {Promise|GraphModel} A promise resolving with a `GraphModel` of the product.
+   */
   fetchProduct(id, query = productNodeQuery()) {
     const rootQuery = this.graphQLClient.query((root) => {
       query(root, 'node', id);
@@ -174,6 +236,20 @@ export default class Client {
     });
   }
 
+  /**
+   * Fetches all collections on the shop, not including products.
+   * To fetch collections with products use [fetchAllCollectionsWithProducts]{@link Client#fetchAllCollectionsWithProducts}.
+   *
+   * ```javascript
+   * client.fetchAllCollections().then((collections) => {
+   *   // Do something with the collections
+   * });
+   * ```
+   *
+   * @method fetchAllCollections
+   * @param {Function} [query] Callback function to specify fields to query on the collections.
+   * @return {Promise|GraphModel[]} A promise resolving with an array of `GraphModel`s of the collections.
+   */
   fetchAllCollections(query = collectionConnectionQuery()) {
     const rootQuery = this.graphQLClient.query((root) => {
       root.add('shop', (shop) => {
@@ -186,6 +262,18 @@ export default class Client {
     });
   }
 
+  /**
+   * Fetches all collections on the shop, including products.
+   *
+   * ```javascript
+   * client.fetchAllCollectionsWithProducts().then((collections) => {
+   *   // Do something with the collections
+   * });
+   * ```
+   *
+   * @method fetchAllCollectionsWithProducts
+   * @return {Promise|GraphModel[]} A promise resolving with an array of `GraphModel`s of the collections.
+   */
   fetchAllCollectionsWithProducts() {
     const query = collectionConnectionQuery([...collectionDefaultFields, ['products', productConnectionQuery()]]);
     const rootQuery = this.graphQLClient.query((root) => {
@@ -205,6 +293,21 @@ export default class Client {
     });
   }
 
+  /**
+   * Fetches a single collection by ID on the shop, not including products.
+   * To fetch the collection with products use [fetchCollectionWithProducts]{@link Client#fetchCollectionWithProducts}.
+   *
+   * ```javascript
+   * client.fetchCollection('123456').then((collection) => {
+   *   // Do something with the collection
+   * });
+   * ```
+   *
+   * @method fetchCollection
+   * @param {String} id The id of the collection to fetch.
+   * @param {Function} [query] Callback function to specify fields to query on the collection.
+   * @return {Promise|GraphModel} A promise resolving with a `GraphModel` of the collection.
+   */
   fetchCollection(id, query = collectionNodeQuery()) {
     const rootQuery = this.graphQLClient.query((root) => {
       query(root, 'node', id);
@@ -215,6 +318,20 @@ export default class Client {
     });
   }
 
+  /**
+   * Fetches a single collection by ID on the shop, including products.
+   *
+   * ```javascript
+   * client.fetchCollectionWithProducts('123456').then((collection) => {
+   *   // Do something with the collection
+   * });
+   * ```
+   *
+   * @method fetchCollectionWithProducts
+   * @param {String} id The id of the collection to fetch.
+   * @param {Function} [query] Callback function to specify fields to query on the collection.
+   * @return {Promise|GraphModel} A promise resolving with a `GraphModel` of the collection.
+   */
   fetchCollectionWithProducts(id) {
     const query = collectionNodeQuery([...collectionDefaultFields, ['products', productConnectionQuery()]]);
     const rootQuery = this.graphQLClient.query((root) => {
@@ -228,6 +345,20 @@ export default class Client {
     });
   }
 
+  /**
+   * Fetches a checkout by ID.
+   *
+   * ```javascript
+   * client.fetchCheckout('123456').then((checkout) => {
+   *   // Do something with the checkout
+   * });
+   * ```
+   *
+   * @method fetchCheckout
+   * @param {String} id The id of the checkout to fetch.
+   * @param {Function} [query] Callback function to specify fields to query on the checkout.
+   * @return {Promise|GraphModel} A promise resolving with a `GraphModel` of the checkout.
+   */
   fetchCheckout(id, query = checkoutNodeQuery()) {
     const rootQuery = this.graphQLClient.query((root) => {
       query(root, 'node', id);
@@ -238,6 +369,28 @@ export default class Client {
     });
   }
 
+  /**
+   * Fetches all products on the shop that match the query.
+   *
+   * ```javascript
+   * client.fetchQueryProducts({title: ..., limit: ..., ...}).then((products) => {
+   *   // Do something with the products
+   * });
+   * ```
+   *
+   * @method fetchQueryProducts
+   * @param {Object} [queryObject] An object specifying the query data containing zero or more of:
+   *   @param {String} [queryObject.title] The title of the product to fetch.
+   *   @param {Array} [queryObject.updatedAtMin] Products updated since the supplied timestamp (format: 2016-09-25T21:31:33).
+   *   @param {Object} [queryObject.createdAtMin] Products created since the supplied timestamp (format: 2016-09-25T21:31:33).
+   *   @param {String} [queryObject.productType] The type of products to fetch.
+   *   @param {Number} [queryObject.limit] The number of products to fetch.
+   *   @param {String} [queryObject.sortBy] The field to use to sort products. Possible values are `title`, `updatedAt`, and `createdAt`.
+   *   @param {String} [queryObject.sortDirection] The sort direction of the products.
+   *     Will sort products by ascending order unless `desc` is specified.
+   * @param {Function} [query] Callback function to specify fields to query on the products.
+   * @return {Promise|GraphModel[]} A promise resolving with an array of `GraphModel`s of the products.
+   */
   fetchQueryProducts(queryObject = {}, query = productConnectionQuery()) {
     const queryArgStrings = [];
     const options = {};
@@ -306,6 +459,26 @@ export default class Client {
     });
   }
 
+  /**
+   * Fetches all collections on the shop that match the query.
+   *
+   * ```javascript
+   * client.fetchQueryCollections({title: ..., limit: ..., ...}).then((collections) => {
+   *   // Do something with the collections
+   * });
+   * ```
+   *
+   * @method fetchQueryCollections
+   * @param {Object} [queryObject] An object specifying the query data containing zero or more of:
+   *   @param {String} [queryObject.title] The title of the collection to fetch.
+   *   @param {Array} [queryObject.updatedAtMin] Collections updated since the supplied timestamp (format: 2016-09-25T21:31:33).
+   *   @param {Number} [queryObject.limit] The number of collections to fetch.
+   *   @param {String} [queryObject.sortBy] The field to use to sort collections. Possible values are `title` and `updatedAt`.
+   *   @param {String} [queryObject.sortDirection] The sort direction of the collections.
+   *     Will sort collections by ascending order unless `desc` is specified.
+   * @param {Function} [query] Callback function to specify fields to query on the collections.
+   * @return {Promise|GraphModel[]} A promise resolving with an array of `GraphModel`s of the collections.
+   */
   fetchQueryCollections(queryObject = {}, query = collectionConnectionQuery()) {
     const queryArgStrings = [];
     const options = {};
@@ -354,20 +527,19 @@ export default class Client {
    * Creates a checkout.
    *
    * ```javascript
-   * client.createCheckout({lineItems:[ ... ]}).then(checkout => {
-   *   // do something with the checkout
+   * client.createCheckout({lineItems: [ ... ], shippingAddress: {...}, ...}).then((checkout) => {
+   *   // Do something with the checkout
    * });
    * ```
    *
    * @method createCheckout
-   * @public
    * @param {Object} [input] An input object containing zero or more of:
-   *   @param {String} [input.email] An email connected to the checkout
-   *   @param {Array} [input.lineItems] A list of line items in the checkout
-   *   @param {Object} [input.shippingAddress] A shipping address
-   *   @param {String} [input.note] A note for the checkout
-   *   @param {Array} [input.customAttributes] A list of custom attributes
-   * @param {Function} [query] Callback function to specify fields to query on the checkout returned
+   *   @param {String} [input.email] An email connected to the checkout.
+   *   @param {Array} [input.lineItems] A list of line items in the checkout.
+   *   @param {Object} [input.shippingAddress] A shipping address.
+   *   @param {String} [input.note] A note for the checkout.
+   *   @param {Array} [input.customAttributes] A list of custom attributes.
+   * @param {Function} [query] Callback function to specify fields to query on the checkout returned.
    * @return {Promise|GraphModel} A promise resolving with the created checkout.
    */
   createCheckout(input = {}, query = checkoutQuery()) {
@@ -378,17 +550,16 @@ export default class Client {
    * Adds line items to an existing checkout.
    *
    * ```javascript
-   * client.addLineItems({checkoutId: ..., lineItems:[ ... ]}).then(checkout => {
-   *   // do something with the updated checkout
+   * client.addLineItems({checkoutId: ..., lineItems: [ ... ]}).then((checkout) => {
+   *   // Do something with the updated checkout
    * });
    * ```
    *
    * @method addLineItems
-   * @public
    * @param {Object} input An input object containing:
-   *   @param {String} input.checkoutId The ID of the checkout to add line items to
-   *   @param {Array} [input.lineItems] A list of line items to add to the checkout
-   * @param {Function} [query] Callback function to specify fields to query on the checkout returned
+   *   @param {String} input.checkoutId The ID of the checkout to add line items to.
+   *   @param {Array} [input.lineItems] A list of line items to add to the checkout.
+   * @param {Function} [query] Callback function to specify fields to query on the checkout returned.
    * @return {Promise|GraphModel} A promise resolving with the updated checkout.
    */
   addLineItems(input, query = checkoutQuery()) {
@@ -399,20 +570,21 @@ export default class Client {
    * Removes line items from an existing checkout.
    *
    * ```javascript
-   * client.removeLineitems({checkoutId: ..., lineItemIds:[ ... ]}).then(checkout => {
-   *   // do something with the updated checkout
+   * client.removeLineitems({checkoutId: ..., lineItemIds: [ ... ]}).then((checkout) => {
+   *   // Do something with the updated checkout
    * });
    * ```
    *
    * @method removeLineItems
-   * @public
    * @param {Object} input An input object containing:
-   *   @param {String} input.checkoutId The ID of the checkout to remove line items from
-   *   @param {Array} input.lineItemIds A list of the ids of line items to remove from the checkout
-   * @param {Function} [query] Callback function to specify fields to query on the checkout returned
+   *   @param {String} input.checkoutId The ID of the checkout to remove line items from.
+   *   @param {Array} input.lineItemIds A list of the ids of line items to remove from the checkout.
+   * @param {Function} [query] Callback function to specify fields to query on the checkout returned.
    * @return {Promise|GraphModel} A promise resolving with the updated checkout.
    */
   removeLineItems(input, query = checkoutQuery()) {
     return checkoutMutation('checkoutLineItemsRemove', input, query, this.graphQLClient);
   }
 }
+
+export default Client;
